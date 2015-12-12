@@ -159,8 +159,6 @@ class ws
 	    $pid = mysql_result($planets, $i, 'planet_uid');
 	    $terr_map_singular = mysql_result($planets, $i, 'plan_terr');
 	    $terr_map_1D_array = str_split($terr_map_singular);
-	    //$total_grids = count($terr_map_1D_array);
-	    //$root_total_grids = sqrt($total_grids);
 	    for($j = 0; $j < count($terr_map_1D_array); $j++)
 	    {
 		if($terr_map_1D_array[$j] != 'y' && $terr_map_1D_array[$j] != 'z' && $terr_map_1D_array[$j] != 'm')
