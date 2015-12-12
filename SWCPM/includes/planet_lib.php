@@ -3,10 +3,29 @@ class planets
 {
     public static function dispTerrMapWithDeposits($pid)
     {
-	$planet = mysql_query("SELECT * FROM ".$GLOBALS['DB_table_prefix']."planets WHERE planet_uid = '$pid'");
-	$plan_terr = mysql_result($planet, 0, 'plan_terr');
-	$terr_map_1D_array = str_split($plan_terr);
-	$maxGridsPerDimension = sqrt(count($terr_map_1D_array));
+	$result = '';
+	if(\planets::planetExists($pid))
+	{
+	    $planet = mysql_query("SELECT * FROM ".$GLOBALS['DB_table_prefix']."planets WHERE planet_uid = '$pid'");
+	    $plan_terr = mysql_result($planet, 0, 'plan_terr');
+	    $terr_map_1D_array = str_split($plan_terr);
+	    $maxGridsPerDimension = sqrt(count($terr_map_1D_array));
+	    $result = "<table cellpadding=0 border=1>";
+	    for($y = 0; $y < $maxGridsPerDimension; $y++)
+	    {
+		$result .= "<tr>";
+		for($x = 0; $x < $maxGridsPerDimension; $x++)
+		{
+		    $terr_char = $terr_map_1D_array[($y * $maxGridsPerDimension) + $x];
+		    $result .= '<td align="center" title="'.\planets::getDepositTextLong($pid , $x , $y).'" valign="middle" style="background-image: url('.\planets::getTerrainImg($terr_char).')" height=35 width=35>';
+		    $result .= \planets::getDepositImg($pid, $x, $y);
+		    $result .= "</td>";
+		}
+		$result .= "</tr>";
+	    }
+	    $result .= "</table>";
+	}
+	return $result;
     }
     
     //Assumes all parameters have been sufficiently sterilized
@@ -23,18 +42,19 @@ class planets
 	}
 	if($result)
 	{
-	    header("Location: ".$GLOBALS['this_site']."?pid=".$pid."&msg=7");
+	    header("Location: ".$GLOBALS['site_name']."?pid=".$pid."&msg=7");
 	    exit();
 	}
 	else
 	{
-	    header("Location: ".$GLOBALS['this_site']."?pid=".$pid."&msg=8");
+	    header("Location: ".$GLOBALS['site_name']."?pid=".$pid."&msg=8");
 	    exit();
 	}
     }
     
     public static function dispHTMLMapWithDeposits($pid)
     {
+	$result = '';
 	if(\planets::planetExists($pid))
 	{
 	    $planet = mysql_query("SELECT * FROM ".$GLOBALS['DB_table_prefix']."planets WHERE planet_uid = '$pid'");
@@ -155,10 +175,35 @@ class planets
 	return mysql_result($terrain, 0, 'terr_img');
     }
     
+    public static function getTerrainImg($tid)
+    {
+	$terrain = mysql_query("SELECT * FROM ".$GLOBALS['DB_table_prefix']."terr WHERE terr_char = '$tid'");
+	return $GLOBALS['site_name'].'images/terrains/'.mysql_result($terrain, 0, 'terr_img').'.gif';
+    }
+    
     public static function getMatName($mid)
     {
 	$mat = mysql_query("SELECT * FROM ".$GLOBALS['DB_table_prefix']."mats WHERE rm_uid = '$mid'");
 	return mysql_result($mat, 0, 'rm_name');
+    }
+    
+    public static function getMatImg($mid)
+    {
+	$mat_img = explode(':',$mid)[1];
+	return '<img height=20 width=20 src="'.$GLOBALS['site_name'].'images/mats/'.$mat_img.'.gif"/>';
+    }
+    
+    public static function getDepositImg($pid, $x, $y)
+    {
+	$deposit = mysql_query("SELECT * FROM ".$GLOBALS['DB_table_prefix']."grids WHERE planet_uid = '$pid' AND planX = '$x' AND planY = '$y'");
+	if (mysql_num_rows($deposit) == 1)
+	{
+	    return \planets::getMatImg(mysql_result($deposit, 0, 'mat_type'));
+	}
+	else
+	{
+	    return '';
+	}
     }
     
     public static function getDepositText($pid, $x, $y)
@@ -175,6 +220,25 @@ class planets
 	else
 	{
 	    return '';
+	}
+    }
+    
+    public static function getDepositTextLong($pid, $x, $y)
+    {
+	$deposit = mysql_query("SELECT * FROM ".$GLOBALS['DB_table_prefix']."grids WHERE planet_uid = '$pid' AND planX = '$x' AND planY = '$y'");
+	if (mysql_num_rows($deposit) == 1)
+	{
+	    $result = mysql_result($deposit, 0, 'mat_quant');
+	    $result .= " unit(s) of ";
+	    $result .= \planets::getMatName(mysql_result($deposit, 0, 'mat_type'));
+	    $result .= " discovered by ";
+	    $result .= stripslashes(mysql_result($deposit, 0, 'prospector'));
+	    $result .= ".";
+	    return $result;
+	}
+	else
+	{
+	    return 'No deposit here.';
 	}
     }
 }
