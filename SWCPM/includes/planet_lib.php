@@ -35,10 +35,33 @@ class planets
     
     public static function dispHTMLMapWithDeposits($pid)
     {
-	$planet = mysql_query("SELECT * FROM ".$GLOBALS['DB_table_prefix']."planets WHERE planet_uid = '$pid'");
-	$plan_terr = mysql_result($planet, 0, 'plan_terr');
-	$terr_map_1D_array = str_split($plan_terr);
-	$maxGridsPerDimension = sqrt(count($terr_map_1D_array));
+	if(\planets::planetExists($pid))
+	{
+	    $planet = mysql_query("SELECT * FROM ".$GLOBALS['DB_table_prefix']."planets WHERE planet_uid = '$pid'");
+	    $plan_terr = mysql_result($planet, 0, 'plan_terr');
+	    $terr_map_1D_array = str_split($plan_terr);
+	    $maxGridsPerDimension = sqrt(count($terr_map_1D_array));
+	    $result = "<table cellpadding=10 border=1>";
+	    for($y = 0; $y < $maxGridsPerDimension; $y++)
+	    {
+		$result .= "<tr>";
+		for($x = 0; $x < $maxGridsPerDimension; $x++)
+		{
+		    $result .= "<td align='center'>";
+		    $terr_char = $terr_map_1D_array[($y * $maxGridsPerDimension) + $x];
+		    $result .= \planets::getTerrainName($terr_char);
+		    $depText = \planets::getDepositText($pid , $x , $y);
+		    if ($depText != '')
+		    {
+			$result .= "<br/>".$depText;
+		    }
+		    $result .= "</td>";
+		}
+		$result .= "</tr>";
+	    }
+	    $result .= "</table>";
+	}
+	return $result;
     }
     
     public static function generatePlanetOptions()
@@ -124,5 +147,34 @@ class planets
 	    
 	}
 	return $options;
+    }
+    
+    public static function getTerrainName($tid)
+    {
+	$terrain = mysql_query("SELECT * FROM ".$GLOBALS['DB_table_prefix']."terr WHERE terr_char = '$tid'");
+	return mysql_result($terrain, 0, 'terr_img');
+    }
+    
+    public static function getMatName($mid)
+    {
+	$mat = mysql_query("SELECT * FROM ".$GLOBALS['DB_table_prefix']."mats WHERE rm_uid = '$mid'");
+	return mysql_result($mat, 0, 'rm_name');
+    }
+    
+    public static function getDepositText($pid, $x, $y)
+    {
+	$deposit = mysql_query("SELECT * FROM ".$GLOBALS['DB_table_prefix']."grids WHERE planet_uid = '$pid' AND planX = '$x' AND planY = '$y'");
+	if (mysql_num_rows($deposit) == 1)
+	{
+	    $result = mysql_result($deposit, 0, 'mat_quant');
+	    $result .= " unit(s) of ";
+	    $result .= \planets::getMatName(mysql_result($deposit, 0, 'mat_type'));
+	    $result .= ".";
+	    return $result;
+	}
+	else
+	{
+	    return '';
+	}
     }
 }
