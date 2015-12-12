@@ -1,4 +1,6 @@
 <?php
+//Contains all error and success messages in a single place
+//for standardized display
 class message {
 
     public static function dispMsg($msgNumber) {

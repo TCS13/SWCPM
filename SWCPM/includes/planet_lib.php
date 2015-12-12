@@ -1,6 +1,9 @@
 <?php
+//For all functions relating to planets.
 class planets
 {
+    //Displays a terrain map like what would be shown through the mining display in SWC
+    //On mouseover, you receive a tooltip with size of deposit, type of deposit and name of who found it
     public static function dispTerrMapWithDeposits($pid)
     {
 	$result = '';
@@ -29,6 +32,9 @@ class planets
     }
     
     //Assumes all parameters have been sufficiently sterilized
+    //Adds all deposits to the DB
+    //Updates deposits if they already existed, overwriting previous information
+    //Removes a deposit record if size == 0
     public static function addDeposit($pid, $size, $who, $type, $x, $y)
     {
 	$alreadyExists = mysql_query("SELECT * FROM ".$GLOBALS['DB_table_prefix']."grids WHERE planet_uid = '$pid' AND planX = '$x' AND planY = '$y'");
@@ -61,6 +67,7 @@ class planets
 	}
     }
     
+    //Displays a table with no images, but text representations of the planet's deposits
     public static function dispHTMLMapWithDeposits($pid)
     {
 	$result = '';
@@ -93,6 +100,7 @@ class planets
 	return $result;
     }
     
+    //Generates the options for all planets that have the possibility of holding mats
     public static function generatePlanetOptions()
     {
 	$curr_plan = \planets::getParam('pid');
@@ -119,6 +127,7 @@ class planets
 	return $options;
     }
     
+    //Returns the maximum ground coordinate for the specified planet.
     public static function getMaxPlanetGroundCoord($pid)
     {
 	$planet = mysql_query("SELECT * FROM ".$GLOBALS['DB_table_prefix']."planets WHERE planet_uid = '$pid'");
@@ -143,6 +152,7 @@ class planets
         return $response;
     }
     
+    //Returns true if the planet exists, false otherwise.
     public static function planetExists($pid)
     {
 	$planet = mysql_query("SELECT * FROM ".$GLOBALS['DB_table_prefix']."planets WHERE planet_uid = '$pid'");
@@ -153,6 +163,7 @@ class planets
 	return false;
     }
     
+    //Returns true if the material exists, false otherwise.
     public static function matExists($mid)
     {
 	$mat = mysql_query("SELECT * FROM ".$GLOBALS['DB_table_prefix']."mats WHERE rm_uid = '$mid'");
@@ -163,6 +174,7 @@ class planets
 	return false;
     }
     
+    //Generates the options for the RM selector
     public static function generateMatOptions()
     {
 	$curr_plan = \planets::getParam('pid');
@@ -178,30 +190,35 @@ class planets
 	return $options;
     }
     
+    //Returns the name of the specified terrain
     public static function getTerrainName($tid)
     {
 	$terrain = mysql_query("SELECT * FROM ".$GLOBALS['DB_table_prefix']."terr WHERE terr_char = '$tid'");
 	return mysql_result($terrain, 0, 'terr_img');
     }
     
+    //Returns the URL of the image for the terrain
     public static function getTerrainImg($tid)
     {
 	$terrain = mysql_query("SELECT * FROM ".$GLOBALS['DB_table_prefix']."terr WHERE terr_char = '$tid'");
 	return $GLOBALS['site_name'].'images/terrains/'.mysql_result($terrain, 0, 'terr_img').'.gif';
     }
     
+    //Returns the name of the specified material
     public static function getMatName($mid)
     {
 	$mat = mysql_query("SELECT * FROM ".$GLOBALS['DB_table_prefix']."mats WHERE rm_uid = '$mid'");
 	return mysql_result($mat, 0, 'rm_name');
     }
     
+    //Returns an HTML image of the specified material.
     public static function getMatImg($mid)
     {
 	$mat_img = explode(':',$mid)[1];
 	return '<img height=20 width=20 src="'.$GLOBALS['site_name'].'images/mats/'.$mat_img.'.gif"/>';
     }
     
+    //Returns an HTML image of the specified deposit.
     public static function getDepositImg($pid, $x, $y)
     {
 	$deposit = mysql_query("SELECT * FROM ".$GLOBALS['DB_table_prefix']."grids WHERE planet_uid = '$pid' AND planX = '$x' AND planY = '$y'");
@@ -215,6 +232,8 @@ class planets
 	}
     }
     
+    //Returns the text of the deposit for use in the HTML table
+    //In form: X unit(s) of [MAT_TYPE].
     public static function getDepositText($pid, $x, $y)
     {
 	$deposit = mysql_query("SELECT * FROM ".$GLOBALS['DB_table_prefix']."grids WHERE planet_uid = '$pid' AND planX = '$x' AND planY = '$y'");
@@ -232,6 +251,8 @@ class planets
 	}
     }
     
+    //Returns the text of the deposit for use in tooltips
+    //In form: X unit(s) of [MAT_TYPE] discovered by [WHO].
     public static function getDepositTextLong($pid, $x, $y)
     {
 	$deposit = mysql_query("SELECT * FROM ".$GLOBALS['DB_table_prefix']."grids WHERE planet_uid = '$pid' AND planX = '$x' AND planY = '$y'");
