@@ -28,6 +28,8 @@ class message {
         } elseif ($msgNumber == '8') {
             $msg = "Adding the deposit failed for an unspecified reason.";
 	    $err = 1;
+        } elseif ($msgNumber == '9') {
+            $msg = "You have removed a deposit from this planet.";
         } else
 	{
 	    $msg = "The error you received was unidentifiable.<br/>Please contact a site administrator with how you received this error.";

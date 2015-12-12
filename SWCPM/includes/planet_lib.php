@@ -32,6 +32,15 @@ class planets
     public static function addDeposit($pid, $size, $who, $type, $x, $y)
     {
 	$alreadyExists = mysql_query("SELECT * FROM ".$GLOBALS['DB_table_prefix']."grids WHERE planet_uid = '$pid' AND planX = '$x' AND planY = '$y'");
+	if($size == 0)
+	{
+	    $del = mysql_query("DELETE FROM ".$GLOBALS['DB_table_prefix']."grids WHERE planet_uid = '$pid' AND planX = '$x' AND planY = '$y'");
+	    if ($del)
+	    {
+		header("Location: ".$GLOBALS['site_name']."?pid=".$pid."&msg=9");
+		exit();
+	    }
+	}
 	if(mysql_num_rows($alreadyExists) == 1)
 	{
 	    $result = mysql_query("UPDATE ".$GLOBALS['DB_table_prefix']."grids SET mat_quant = '$size', mat_type = '$type', prospector = '$who' WHERE planet_uid = '$pid' AND planX = '$x' AND planY = '$y'");
