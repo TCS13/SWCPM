@@ -16,33 +16,33 @@
 	$y = \planets::getParam('surfY');
 	if($who == '' || $mat == '' || $size == '' || $x == '' || $y == '')
 	{
-	    header("Location: ".$GLOBALS['this_site']."?pid=".$pid."&msg=1");
+	    header("Location: ".$GLOBALS['site_name']."?pid=".$pid."&msg=1");
 	    exit();
 	}
 	if(!\planets::planetExists($pid))
 	{
-	    header("Location: ".$GLOBALS['this_site']."?msg=2");
+	    header("Location: ".$GLOBALS['site_name']."?msg=2");
 	    exit();
 	}
 	if(!\planets::matExists($mat))
 	{
-	    header("Location: ".$GLOBALS['this_site']."?pid=".$pid."&msg=3");
+	    header("Location: ".$GLOBALS['site_name']."?pid=".$pid."&msg=3");
 	    exit();
 	}
 	$size = str_replace(",", '', $size);
 	if($size < 0 || !is_numeric($size))
 	{
-	    header("Location: ".$GLOBALS['this_site']."?pid=".$pid."&msg=4");
+	    header("Location: ".$GLOBALS['site_name']."?pid=".$pid."&msg=4");
 	    exit();
 	}
 	if(!($x >= 0 && $x < \planets::getMaxPlanetGroundCoord($pid)))
 	{
-	    header("Location: ".$GLOBALS['this_site']."?pid=".$pid."&msg=5");
+	    header("Location: ".$GLOBALS['site_name']."?pid=".$pid."&msg=5");
 	    exit();
 	}
 	if(!($y >= 0 && $y < \planets::getMaxPlanetGroundCoord($pid)))
 	{
-	    header("Location: ".$GLOBALS['this_site']."?pid=".$pid."&msg=6");
+	    header("Location: ".$GLOBALS['site_name']."?pid=".$pid."&msg=6");
 	    exit();
 	}
 	\planets::addDeposit($pid , $size , $who , $mat, $x , $y);
