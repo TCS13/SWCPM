@@ -54,7 +54,7 @@
 	var planetID = planetSel.options[planetSel.selectedIndex].value;
 	form = document.createElement('form');
 	form.setAttribute('method', 'POST');
-	form.setAttribute('action', '');
+	form.setAttribute('action', 'http://dot.swc-tf.com/ted_pm/');
 	myvar = document.createElement('input');
 	myvar.setAttribute('name', 'pid');
 	myvar.setAttribute('type', 'hidden');
