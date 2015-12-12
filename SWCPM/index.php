@@ -1,12 +1,15 @@
 <?php
     //Include the standard header info on all pages
     include('includes/header.php');
+    //Save the planet's ID, if any selected
     $pid = \planets::getParam('pid');
+    //Display any error or success messages
     if(\planets::getParam('msg') != '')
     {
 	echo \message::dispMsg(\planets::getParam('msg'));
 	echo "<br/>";
     }
+    //Processes submissions of new deposits
     if(\planets::getParam('mode') == 'submit' && $pid != '')
     {
 	$who = addslashes(\planets::getParam('who'));
@@ -14,37 +17,44 @@
 	$size = \planets::getParam('size');
 	$x = \planets::getParam('surfX');
 	$y = \planets::getParam('surfY');
+	//Verifies no blank parameters
 	if($who == '' || $mat == '' || $size == '' || $x == '' || $y == '')
 	{
 	    header("Location: ".$GLOBALS['site_name']."?pid=".$pid."&msg=1");
 	    exit();
 	}
+	//Verifies planet exists
 	if(!\planets::planetExists($pid))
 	{
 	    header("Location: ".$GLOBALS['site_name']."?msg=2");
 	    exit();
 	}
+	//Verifies RM exists
 	if(!\planets::matExists($mat))
 	{
 	    header("Location: ".$GLOBALS['site_name']."?pid=".$pid."&msg=3");
 	    exit();
 	}
+	//Removes formatting from numbers, verifies size is >= 0 and numeric
 	$size = str_replace(",", '', $size);
 	if($size < 0 || !is_numeric($size))
 	{
 	    header("Location: ".$GLOBALS['site_name']."?pid=".$pid."&msg=4");
 	    exit();
 	}
+	//Verifies x-coordinate is valid given the current planet
 	if(!($x >= 0 && $x < \planets::getMaxPlanetGroundCoord($pid)))
 	{
 	    header("Location: ".$GLOBALS['site_name']."?pid=".$pid."&msg=5");
 	    exit();
 	}
+	//Verifies y-coordinate is valid given the current planet
 	if(!($y >= 0 && $y < \planets::getMaxPlanetGroundCoord($pid)))
 	{
 	    header("Location: ".$GLOBALS['site_name']."?pid=".$pid."&msg=6");
 	    exit();
 	}
+	//Adds/Removes/Updates the deposit and redirects with an appropriate success/error message
 	\planets::addDeposit($pid , $size , $who , $mat, $x , $y);
     }
 ?>
@@ -64,7 +74,7 @@
 	form.submit(); 
     }
 </script>
-
+<!--Allows changing what planet is being viewed-->
 <select name="planet" onchange="javascript: setPID()" id="planet" value="type">
     <?php echo \planets::generatePlanetOptions(); ?>
 </select>
@@ -78,6 +88,7 @@
 	echo \planets::dispHTMLMapWithDeposits($pid);
 	echo "<br/><br/>";
 	?>
+	<!--Form for submitting new deposits-->
 	<form method="POST" action="index.php?mode=submit">
 	    <table>
 		<tr>
